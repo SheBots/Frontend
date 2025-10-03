@@ -6,6 +6,7 @@ function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [useDocs, setUseDocs] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState('')
   
@@ -70,7 +71,8 @@ function App() {
         },
         body: JSON.stringify({
           message: userMessage.content,
-          messages: messages.filter(m => m.role !== 'assistant' || !m.isStreaming)
+          messages: messages.filter(m => m.role !== 'assistant' || !m.isStreaming),
+          useDocs: useDocs
         }),
         signal: abortControllerRef.current.signal
       })
@@ -279,6 +281,12 @@ function App() {
                   </button>
                 )}
               </div>
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="checkbox" checked={useDocs} onChange={(e) => setUseDocs(e.target.checked)} />
+                Use web knowledge (RAG)
+              </label>
             </div>
           </form>
         </div>
