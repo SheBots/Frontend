@@ -171,31 +171,35 @@ function App() {
   }
 
   return (
-    <>
-      {/* Floating chat button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          className="w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
-          onClick={() => setIsOpen(true)}
-          aria-label="Open chat"
-          title="Open chat"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m2 8l-3-3H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-1z" />
-          </svg>
-        </button>
-      </div>
+    <div className="bg-white min-h-screen">
+      {/* Floating chat button (hidden when panel is open) */}
+      {!isOpen && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            className="w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+            onClick={() => setIsOpen(true)}
+            aria-label="Open chat"
+            title="Open chat"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m2 8l-3-3H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-1z" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Chat panel modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black bg-opacity-40" onClick={() => setIsOpen(false)} aria-hidden></div>
+        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center sm:justify-end" role="dialog" aria-modal="true">
+          {/* white overlay background */}
+          <div className="absolute inset-0 bg-white" onClick={() => setIsOpen(false)} aria-hidden></div>
 
-          <div className="relative w-full max-w-md mx-4 mb-6 sm:mb-0 sm:rounded-xl bg-white shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
+          {/* Panel: mobile = bottom centered, desktop = right side 80vh height */}
+          <div className="relative w-full max-w-md mx-4 mb-6 sm:mb-0 sm:rounded-xl bg-white shadow-lg flex flex-col sm:h-[80vh] h-auto max-h-[90vh] overflow-hidden sm:mr-6">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold text-slate-900">Chatbot</h2>
+                <h2 className="text-lg font-semibold text-slate-900">SheBots</h2>
                 <div className="flex items-center gap-2 text-sm text-slate-600">
                   <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-300'}`} aria-hidden></span>
                   <span>{isConnected ? 'Connected' : 'Offline'}</span>
@@ -215,7 +219,7 @@ function App() {
               <div className="space-y-4">
                 {messages.length === 0 && (
                   <div className="text-center text-slate-500">
-                    <p className="font-medium">Welcome to Chatbot</p>
+                    <p className="font-medium">Welcome to SheBots</p>
                     <p className="text-sm">Type a message to start the conversation.</p>
                   </div>
                 )}
@@ -279,20 +283,12 @@ function App() {
                 </div>
               </form>
 
-              <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={useDocs} onChange={(e) => setUseDocs(e.target.checked)} className="w-4 h-4" />
-                  Use web knowledge
-                </label>
-                <div>
-                  <small>Privacy: messages go to backend</small>
-                </div>
-              </div>
+              {/* input area is placed at the bottom of the panel */}
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
