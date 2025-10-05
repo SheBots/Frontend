@@ -9,7 +9,8 @@ function App() {
   const [useDocs, setUseDocs] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState('')
-  
+  const [isOpen, setIsOpen] = useState(false)
+
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
   const abortControllerRef = useRef(null)
@@ -18,7 +19,7 @@ function App() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-  
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
@@ -27,7 +28,7 @@ function App() {
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/health`, { 
+        const response = await fetch(`${API_BASE}/api/health`, {
           method: 'GET',
           headers: { 'Accept': 'application/json' }
         })
@@ -42,9 +43,9 @@ function App() {
         setConnectionError('Backend not available')
       }
     }
-    
+
     checkConnection()
-    const interval = setInterval(checkConnection, 30000) // Check every 30s
+    const interval = setInterval(checkConnection, 30000)
     return () => clearInterval(interval)
   }, [])
 
@@ -54,12 +55,11 @@ function App() {
 
     const userMessage = { id: Date.now(), role: 'user', content: input.trim() }
     const assistantMessage = { id: Date.now() + 1, role: 'assistant', content: '', isStreaming: true }
-    
+
     setMessages(prev => [...prev, userMessage, assistantMessage])
     setInput('')
     setIsLoading(true)
 
-    // Create abort controller for this request
     abortControllerRef.current = new AbortController()
 
     try {
@@ -90,51 +90,50 @@ function App() {
 
         const chunk = decoder.decode(value)
         const lines = chunk.split('\n')
-        
+
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const data = line.slice(6)
             if (data === '[DONE]') {
-              setMessages(prev => prev.map(msg => 
-                msg.id === assistantMessage.id 
+              setMessages(prev => prev.map(msg =>
+                msg.id === assistantMessage.id
                   ? { ...msg, isStreaming: false }
                   : msg
               ))
               break
             }
-            
+
             try {
               const parsed = JSON.parse(data)
               if (parsed.token) {
-                setMessages(prev => prev.map(msg => 
-                  msg.id === assistantMessage.id 
+                setMessages(prev => prev.map(msg =>
+                  msg.id === assistantMessage.id
                     ? { ...msg, content: msg.content + parsed.token }
                     : msg
                 ))
               }
             } catch (e) {
-              // Skip invalid JSON
+              // ignore invalid JSON
             }
           }
         }
       }
-      
+
       setIsConnected(true)
       setConnectionError('')
     } catch (error) {
       if (error.name === 'AbortError') {
-        // Request was cancelled
         setMessages(prev => prev.filter(msg => msg.id !== assistantMessage.id))
       } else {
         setIsConnected(false)
         setConnectionError(error.message)
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantMessage.id 
-            ? { 
-                ...msg, 
-                content: `Error: Unable to connect to the backend. ${error.message}`, 
+        setMessages(prev => prev.map(msg =>
+          msg.id === assistantMessage.id
+            ? {
+                ...msg,
+                content: `Error: Unable to connect to the backend. ${error.message}`,
                 isStreaming: false,
-                isError: true 
+                isError: true
               }
             : msg
         ))
@@ -156,7 +155,6 @@ function App() {
     try {
       await navigator.clipboard.writeText(text)
     } catch (err) {
-      // Fallback for older browsers
       const textArea = document.createElement('textarea')
       textArea.value = text
       document.body.appendChild(textArea)
@@ -173,131 +171,128 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <h1 className="app-title">Chatbot UI</h1>
-          <div className="connection-status">
-            <span className={`status-indicator ${isConnected ? 'connected' : 'offline'}`}>
-              {isConnected ? '●' : '○'}
-            </span>
-            <span className="status-text">
-              {isConnected ? 'Connected' : 'Offline'}
-            </span>
-            {connectionError && (
-              <span className="error-text" title={connectionError}>
-                ({connectionError})
-              </span>
-            )}
+    <>
+      {/* Floating chat button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          className="w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+          onClick={() => setIsOpen(true)}
+          aria-label="Open chat"
+          title="Open chat"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m2 8l-3-3H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-1z" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Chat panel modal */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black bg-opacity-40" onClick={() => setIsOpen(false)} aria-hidden></div>
+
+          <div className="relative w-full max-w-md mx-4 mb-6 sm:mb-0 sm:rounded-xl bg-white shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-slate-900">Chatbot</h2>
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-300'}`} aria-hidden></span>
+                  <span>{isConnected ? 'Connected' : 'Offline'}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => { setIsOpen(false); stopGeneration(); }} className="text-slate-600 hover:text-slate-800" title="Close chat" aria-label="Close chat">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Chat content */}
+            <div className="flex-1 overflow-y-auto p-4 bg-white" role="log" aria-live="polite" aria-atomic="false">
+              <div className="space-y-4">
+                {messages.length === 0 && (
+                  <div className="text-center text-slate-500">
+                    <p className="font-medium">Welcome to Chatbot</p>
+                    <p className="text-sm">Type a message to start the conversation.</p>
+                  </div>
+                )}
+
+                {messages.map((message) => (
+                  <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`relative max-w-[80%] px-4 py-2 rounded-lg ${message.role === 'user' ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-gray-100 text-slate-900 rounded-bl-sm'}`}>
+                      <div className="whitespace-pre-wrap break-words">
+                        {message.content}
+                        {message.isStreaming && <span className="ml-1 text-blue-500">|</span>}
+                      </div>
+                      {message.role === 'assistant' && !message.isStreaming && message.content && (
+                        <button
+                          onClick={() => copyToClipboard(message.content)}
+                          className="absolute -top-3 -right-3 bg-white border rounded p-1 text-sm text-slate-600 shadow"
+                          title="Copy to clipboard"
+                          aria-label="Copy message to clipboard"
+                        >
+                          📋
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="flex items-center gap-2 bg-gray-100 text-slate-700 px-3 py-2 rounded-lg">
+                      <span className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" />
+                      <span className="text-sm">Assistant is typing…</span>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            {/* Input area */}
+            <div className="p-3 border-t bg-white">
+              <form onSubmit={handleSubmit} className="flex items-end gap-2" role="form" aria-label="Send a message">
+                <label htmlFor="message-input" className="sr-only">Message</label>
+                <textarea
+                  id="message-input"
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type your message..."
+                  rows={1}
+                  className="flex-1 resize-none rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  disabled={isLoading}
+                />
+
+                <div className="flex flex-col gap-2">
+                  {isLoading ? (
+                    <button type="button" onClick={stopGeneration} title="Stop generation" aria-label="Stop generation" className="bg-red-500 text-white px-3 py-2 rounded-md">Stop</button>
+                  ) : (
+                    <button type="submit" disabled={!input.trim() || isLoading} title="Send" aria-label="Send message" className="bg-blue-600 disabled:opacity-60 text-white px-3 py-2 rounded-md">Send</button>
+                  )}
+                </div>
+              </form>
+
+              <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={useDocs} onChange={(e) => setUseDocs(e.target.checked)} className="w-4 h-4" />
+                  Use web knowledge
+                </label>
+                <div>
+                  <small>Privacy: messages go to backend</small>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </header>
-
-      {/* Chat Area */}
-      <main className="chat-main">
-        <div className="messages-container" role="log" aria-live="polite" aria-label="Chat messages">
-          {messages.length === 0 && (
-            <div className="welcome-message">
-              <h2>Welcome to Chatbot UI</h2>
-              <p>Start a conversation by typing a message below.</p>
-            </div>
-          )}
-          
-          {messages.map((message) => (
-            <div key={message.id} className={`message ${message.role}`}>
-              <div className="message-content">
-                <div className="message-text">
-                  {message.content}
-                  {message.isStreaming && <span className="cursor">|</span>}
-                </div>
-                {message.role === 'assistant' && !message.isStreaming && message.content && (
-                  <button
-                    className="copy-button"
-                    onClick={() => copyToClipboard(message.content)}
-                    title="Copy to clipboard"
-                    aria-label="Copy message to clipboard"
-                  >
-                    📋
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-          
-          {isLoading && (
-            <div className="typing-indicator">
-              <div className="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-      </main>
-
-      {/* Input Area */}
-      <footer className="input-footer">
-        <div className="input-container">
-          <form onSubmit={handleSubmit} className="input-form">
-            <div className="textarea-container">
-              <label htmlFor="message-input" className="sr-only">
-                Type your message
-              </label>
-              <textarea
-                id="message-input"
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
-                rows="1"
-                className="message-input"
-                disabled={isLoading}
-              />
-              <div className="input-actions">
-                {isLoading ? (
-                  <button
-                    type="button"
-                    onClick={stopGeneration}
-                    className="stop-button"
-                    title="Stop generation"
-                    aria-label="Stop message generation"
-                  >
-                    ⏹
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading}
-                    className="send-button"
-                    title="Send message"
-                    aria-label="Send message"
-                  >
-                    ➤
-                  </button>
-                )}
-              </div>
-            </div>
-            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" checked={useDocs} onChange={(e) => setUseDocs(e.target.checked)} />
-                Use web knowledge (RAG)
-              </label>
-            </div>
-          </form>
-        </div>
-        <div className="privacy-note">
-          <small>
-            Privacy & Use: Messages are sent to the configured backend API. 
-            Please don't share sensitive information.
-          </small>
-        </div>
-      </footer>
-    </div>
+      )}
+    </>
   )
 }
 
