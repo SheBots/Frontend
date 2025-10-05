@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
 function App() {
   const [messages, setMessages] = useState([])
@@ -71,7 +71,7 @@ function App() {
         },
         body: JSON.stringify({
           message: userMessage.content,
-          messages: messages.filter(m => m.role !== 'assistant' || !m.isStreaming),
+          history: messages.filter(m => m.role !== 'assistant' || !m.isStreaming),
           useDocs: useDocs
         }),
         signal: abortControllerRef.current.signal
