@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
-function App() {
+function ChatBot() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -292,4 +292,4 @@ function App() {
   )
 }
 
-export default App
+export default ChatBot
