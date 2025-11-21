@@ -12,7 +12,7 @@ const teamMembers = [
   {
     id: 2,
     name: "Malysheva Anastasia",
-    role: "Frontend Developer",
+    role: "Frontend Developer & UI Designer",
     initials: "MA",
     email: "1803nastiama2003@gmail.com",
     isLeader: false
@@ -20,7 +20,7 @@ const teamMembers = [
   {
     id: 3,
     name: "Suzi",
-    role: "UX/UI Designer",
+    role: "UI Designer",
     initials: "S",
     email: "suzannadzhanazyan@yahoo.com ",
     isLeader: false
