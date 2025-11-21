@@ -27,7 +27,7 @@ const teamMembers = [
   },
   {
     id: 4,
-    name: "Rakshita",
+    name: "Rakshitha Nagaraj",
     role: "Backend Developer",
     initials: "RN",
     email: "rakshu20303@gmail.com",
