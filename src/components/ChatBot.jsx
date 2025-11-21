@@ -190,7 +190,7 @@ function ChatBot() {
 
       {/* Chat panel modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 flex items-end sm:items-end justify-end pointer-events-none p-4 sm:p-6" style={{paddingBottom: '70px'}} role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-40 flex items-end sm:items-end justify-end pointer-events-none p-4 sm:p-6" style={{paddingBottom: '55px'}} role="dialog" aria-modal="true">
           {/* semi-transparent overlay background */}
           <div className="absolute inset-0 bg-black/20 pointer-events-auto" onClick={() => setIsOpen(false)} aria-hidden></div>
 
