@@ -171,7 +171,7 @@ function ChatBot() {
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div>
       {/* Floating chat button (hidden when panel is open) */}
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-50">
@@ -190,12 +190,12 @@ function ChatBot() {
 
       {/* Chat panel modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center sm:justify-end" role="dialog" aria-modal="true">
-          {/* white overlay background */}
-          <div className="absolute inset-0 bg-white" onClick={() => setIsOpen(false)} aria-hidden></div>
+        <div className="fixed inset-0 z-40 flex items-end sm:items-end justify-end pointer-events-none p-4 sm:p-6" style={{paddingBottom: '75px'}} role="dialog" aria-modal="true">
+          {/* semi-transparent overlay background */}
+          <div className="absolute inset-0 bg-black/20 pointer-events-auto" onClick={() => setIsOpen(false)} aria-hidden></div>
 
-          {/* Panel: mobile = bottom centered, desktop = right side 80vh height */}
-          <div className="relative w-full max-w-md mx-4 mb-6 sm:mb-0 sm:rounded-xl bg-white shadow-lg flex flex-col sm:h-[80vh] h-auto max-h-[90vh] overflow-hidden sm:mr-6">
+          {/* Panel: positioned with proper spacing from header */}
+          <div className="relative w-full max-w-md bg-white shadow-lg flex flex-col sm:h-[70vh] h-[70vh] overflow-hidden sm:rounded-xl pointer-events-auto z-50">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-3">
