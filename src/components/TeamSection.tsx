@@ -6,7 +6,7 @@ const teamMembers = [
     name: "Nishtha",
     role: "Project Lead & AI Research",
     initials: "N",
-    email: "???@knu.ac.kr",
+    email: "lathnishtha775@knu.ac.kr",
     isLeader: true
   },
   {
