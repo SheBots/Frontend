@@ -10,6 +10,7 @@ function ChatBot() {
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState('')
   const [isOpen, setIsOpen] = useState(false)
+  const [greetingStep, setGreetingStep] = useState(0) // 0: none, 1: first message, 2: second message
 
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
@@ -47,6 +48,30 @@ function ChatBot() {
     checkConnection()
     const interval = setInterval(checkConnection, 30000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Show greeting bubble on page load
+  useEffect(() => {
+    // Show first message after 1 second
+    const timer1 = setTimeout(() => {
+      setGreetingStep(1)
+    }, 1000)
+
+    // Hide first message and show second after 2 seconds
+    const timer2 = setTimeout(() => {
+      setGreetingStep(2)
+    }, 3000)
+
+    // Hide second message after 4 seconds
+    const timer3 = setTimeout(() => {
+      setGreetingStep(0)
+    }, 5000)
+
+    return () => {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+      clearTimeout(timer3)
+    }
   }, [])
 
   const handleSubmit = async (e) => {
@@ -172,12 +197,33 @@ function ChatBot() {
 
   return (
     <div>
+      {/* Greeting bubble - appears to the left of the chat button */}
+      {!isOpen && greetingStep > 0 && (
+        <div className="fixed bottom-6 right-24 z-50 animate-fade-in">
+          <div className="bg-white rounded-lg shadow-xl p-4 max-w-xs border border-gray-200 relative">
+            {/* Greeting content */}
+            {greetingStep === 1 && (
+              <p className="font-semibold text-gray-800">Hi, I'm your AI assistant! 👋</p>
+            )}
+            {greetingStep === 2 && (
+              <p className="text-sm text-gray-600">How can I help you?</p>
+            )}
+            
+            {/* Small arrow pointing to chat button */}
+            <div className="absolute bottom-6 -right-2 w-4 h-4 bg-white border-r border-t border-gray-200 transform rotate-45"></div>
+          </div>
+        </div>
+      )}
+
       {/* Floating chat button (hidden when panel is open) */}
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-50">
           <button
-            className="w-16 h-16 rounded-full bg-red-600 text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
-            onClick={() => setIsOpen(true)}
+            className="w-16 h-16 rounded-full bg-red-600 text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-transform duration-300 hover:-translate-y-1 active:translate-y-0"
+            onClick={() => {
+              setIsOpen(true)
+              setGreetingStep(0)
+            }}
             aria-label="Open chat"
             title="Open chat"
           >
