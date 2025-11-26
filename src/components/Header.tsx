@@ -11,7 +11,7 @@ export function Header() {
               <GraduationCap className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-[#C8102E] tracking-tight text-lg font-semibold">KNU ChatBot Project</h1>
+              <h1 className="text-[#C8102E] tracking-tight text-2xl font-semibold">SheBots</h1>
               <p className="text-gray-600 text-xs mt-0.5">Kyungpook National University</p>
             </div>
           </div>

@@ -1,6 +1,40 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+
+// Memoized Markdown component for better performance
+const MarkdownContent = memo(({ content }) => {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({children, ...props}) => <h1 className="text-base font-bold mt-2 mb-1 first:mt-0" {...props}>{children}</h1>,
+        h2: ({children, ...props}) => <h2 className="text-sm font-bold mt-2 mb-1 first:mt-0" {...props}>{children}</h2>,
+        h3: ({children, ...props}) => <h3 className="text-sm font-semibold mt-1.5 mb-0.5 first:mt-0" {...props}>{children}</h3>,
+        p: ({children, ...props}) => <p className="mb-1.5 last:mb-0" {...props}>{children}</p>,
+        ul: ({children, ...props}) => <ul className="list-disc ml-4 mb-1.5 space-y-0.5" {...props}>{children}</ul>,
+        ol: ({children, ...props}) => <ol className="list-decimal ml-4 mb-1.5 space-y-0.5" {...props}>{children}</ol>,
+        li: ({children, ...props}) => <li className="ml-0" {...props}>{children}</li>,
+        strong: ({children, ...props}) => <strong className="font-bold text-slate-900" {...props}>{children}</strong>,
+        em: ({children, ...props}) => <em className="italic" {...props}>{children}</em>,
+        code: ({inline, children, ...props}) => {
+          if (inline) {
+            return <code className="bg-slate-200 text-slate-800 px-1 py-0.5 rounded text-xs font-mono" {...props}>{children}</code>
+          }
+          return <code className="block bg-slate-200 text-slate-800 p-2 rounded my-1.5 text-xs overflow-x-auto font-mono" {...props}>{children}</code>
+        },
+        pre: ({children, ...props}) => <pre className="bg-slate-200 p-2 rounded my-1.5 overflow-x-auto" {...props}>{children}</pre>,
+        hr: ({...props}) => <hr className="my-2 border-slate-300" {...props} />,
+        blockquote: ({children, ...props}) => <blockquote className="border-l-2 border-slate-400 pl-2 my-1.5 italic text-slate-700" {...props}>{children}</blockquote>,
+        a: ({children, ...props}) => <a className="text-blue-600 hover:underline" {...props}>{children}</a>,
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  )
+})
 // Recommended topics configuration
 const TOPICS = [
   { id: 1, label: '심화컴퓨팅전공에서 출업 위해 받아야한 교양학점은 뭐야?', icon: '💼' },
@@ -88,6 +122,8 @@ function ChatBot() {
 
     // Hide greeting after first message
     setShowGreeting(false)
+    // Clear selected topic
+    setSelectedTopic(null)
 
     const userMessage = { id: Date.now(), role: 'user', content: input.trim() }
     const assistantMessage = { id: Date.now() + 1, role: 'assistant', content: '', isStreaming: true }
@@ -269,7 +305,7 @@ function ChatBot() {
           }}>
             {/* Header */}
             <div className="flex items-center justify-center px-4 py-2 border-b bg-white/80 backdrop-blur-sm relative">
-              <h2 id="chat-title" className="text-xl font-bold text-red-600">KNU ChatBot Project</h2>
+              <h2 id="chat-title" className="text-2xl font-bold text-red-600">SheBots</h2>
               <div className="absolute right-4 flex items-center gap-2">
                 <button onClick={resetChat} className="text-slate-600 hover:text-slate-800" title="Reset chat" aria-label="Reset chat">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
@@ -285,22 +321,22 @@ function ChatBot() {
             </div>
 
             {/* Chat content */}
-            <div className="flex-1 overflow-y-auto p-4" role="log" aria-live="polite" aria-atomic="false">
-              <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto p-3" role="log" aria-live="polite" aria-atomic="false">
+              <div className="space-y-2">
                 {showGreeting && messages.length === 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {/* Greeting Card */}
-                    <div className="bg-white rounded-2xl shadow-md p-3 border border-gray-100">
-                      <div className="flex items-start gap-2 mb-2">
+                    <div className="bg-white rounded-xl shadow-md p-2 border border-gray-100">
+                      <div className="flex items-start gap-2 mb-1">
                         {/* Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-pink-400 flex items-center justify-center text-white text-xl flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-red-400 to-pink-400 flex items-center justify-center text-white text-lg flex-shrink-0">
                           🤖
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-slate-900 text-lg mb-1">
+                          <h3 className="font-bold text-slate-900 text-m mb-0.5">
                             Greetings! I'm your CS department AI Assistant
                           </h3>
-                          <div className="text-sm text-slate-600 space-y-1">
+                          <div className="text-sm text-slate-600 space-y-0.5">
                             <p>I can help you with information in both <span className="font-medium">English</span> and <span className="font-medium">Korean</span>.</p>
                             <p className="text-slate-700 font-medium">
                               You may choose a question from below or type your own!
@@ -311,20 +347,19 @@ function ChatBot() {
                     </div>
 
                     {/* Topic Recommendation Chips */}
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap gap-1.5">
                         {TOPICS.map((topic) => (
                           <button
                             key={topic.id}
                             onClick={() => handleTopicClick(topic)}
-                            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
                               selectedTopic === topic.label
                                 ? 'bg-red-500 text-white shadow-md scale-105'
                                 : 'bg-white text-slate-700 border border-gray-200 hover:border-red-300 hover:bg-red-50 hover:shadow-sm'
                             }`}
                             aria-pressed={selectedTopic === topic.label}
                           >
-                            <span className="text-base">{topic.icon}</span>
                             <span>{topic.label}</span>
                           </button>
                         ))}
@@ -335,15 +370,24 @@ function ChatBot() {
 
                 {messages.map((message) => (
                   <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`relative max-w-[80%] px-4 py-2 rounded-lg ${message.role === 'user' ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-gray-100 text-slate-900 rounded-bl-sm'}`}>
-                      <div className="whitespace-pre-wrap break-words">
-                        {message.content}
-                        {message.isStreaming && <span className="ml-1 text-blue-500">|</span>}
+                    <div className={`relative max-w-[80%] px-3 py-1.5 rounded-lg text-sm ${message.role === 'user' ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-gray-100 text-slate-900 rounded-bl-sm'}`}>
+                      <div className="break-words">
+                        {message.role === 'assistant' ? (
+                          <>
+                            <MarkdownContent content={message.content} />
+                            {message.isStreaming && <span className="inline-block ml-1 text-blue-500 animate-pulse">|</span>}
+                          </>
+                        ) : (
+                          <>
+                            <span className="whitespace-pre-wrap">{message.content}</span>
+                            {message.isStreaming && <span className="inline-block ml-1 animate-pulse">|</span>}
+                          </>
+                        )}
                       </div>
                       {message.role === 'assistant' && !message.isStreaming && message.content && (
                         <button
                           onClick={() => copyToClipboard(message.content)}
-                          className="absolute -top-3 -right-3 bg-white border rounded p-1 text-sm text-slate-600 shadow"
+                          className="absolute -top-2 -right-2 bg-white border rounded p-0.5 text-xs text-slate-600 shadow hover:shadow-md transition-shadow"
                           title="Copy to clipboard"
                           aria-label="Copy message to clipboard"
                         >
@@ -356,9 +400,9 @@ function ChatBot() {
 
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="flex items-center gap-2 bg-gray-100 text-slate-700 px-3 py-2 rounded-lg">
-                      <span className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" />
-                      <span className="text-sm">Assistant is typing…</span>
+                    <div className="flex items-center gap-1.5 bg-gray-100 text-slate-700 px-2.5 py-1.5 rounded-lg">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
+                      <span className="text-xs">Assistant is typing…</span>
                     </div>
                   </div>
                 )}
@@ -368,17 +412,8 @@ function ChatBot() {
             </div>
 
             {/* Input area */}
-            <div className="p-3 border-t bg-white/80 backdrop-blur-sm">
-              {selectedTopic && (
-                <div className="mb-2 flex items-center gap-2 text-sm">
-                  <span className="text-slate-600">Topic:</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
-                    {TOPICS.find(t => t.label === selectedTopic)?.icon}
-                    {selectedTopic}
-                  </span>
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="flex items-end gap-2" role="form" aria-label="Send a message">
+            <div className="p-2 border-t bg-white/80 backdrop-blur-sm">
+              <form onSubmit={handleSubmit} className="flex items-end gap-1.5" role="form" aria-label="Send a message">
                 <label htmlFor="message-input" className="sr-only">Message</label>
                 <textarea
                   id="message-input"
@@ -388,15 +423,15 @@ function ChatBot() {
                   onKeyDown={handleKeyDown}
                   placeholder="Type your message..."
                   rows={1}
-                  className="flex-1 resize-none rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="flex-1 resize-none rounded-md border px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                   disabled={isLoading}
                 />
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5">
                   {isLoading ? (
-                    <button type="button" onClick={stopGeneration} title="Stop generation" aria-label="Stop generation" className="bg-red-500 text-white px-3 py-2 rounded-md">Stop</button>
+                    <button type="button" onClick={stopGeneration} title="Stop generation" aria-label="Stop generation" className="bg-red-500 text-white px-2.5 py-1.5 rounded-md text-sm">Stop</button>
                   ) : (
-                    <button type="submit" disabled={!input.trim() || isLoading} title="Send" aria-label="Send message" className="bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-2 rounded-md">Send</button>
+                    <button type="submit" disabled={!input.trim() || isLoading} title="Send" aria-label="Send message" className="bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-white px-2.5 py-1.5 rounded-md text-sm">Send</button>
                   )}
                 </div>
               </form>
