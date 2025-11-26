@@ -375,13 +375,16 @@ function ChatBot() {
                         {message.role === 'assistant' ? (
                           <>
                             <MarkdownContent content={message.content} />
-                            {message.isStreaming && <span className="inline-block ml-1 text-blue-500 animate-pulse">|</span>}
+                            {message.isStreaming && message.content.length === 0 && (
+                              <div className="flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{animationDelay: '0ms'}} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{animationDelay: '150ms'}} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{animationDelay: '300ms'}} />
+                              </div>
+                            )}
                           </>
                         ) : (
-                          <>
-                            <span className="whitespace-pre-wrap">{message.content}</span>
-                            {message.isStreaming && <span className="inline-block ml-1 animate-pulse">|</span>}
-                          </>
+                          <span className="whitespace-pre-wrap">{message.content}</span>
                         )}
                       </div>
                       {message.role === 'assistant' && !message.isStreaming && message.content && (
@@ -397,15 +400,6 @@ function ChatBot() {
                     </div>
                   </div>
                 ))}
-
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="flex items-center gap-1.5 bg-gray-100 text-slate-700 px-2.5 py-1.5 rounded-lg">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
-                      <span className="text-xs">Assistant is typing…</span>
-                    </div>
-                  </div>
-                )}
 
                 <div ref={messagesEndRef} />
               </div>
