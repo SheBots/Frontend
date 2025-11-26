@@ -10,25 +10,26 @@ const MarkdownContent = memo(({ content }) => {
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
-        h1: ({children, ...props}) => <h1 className="text-base font-bold mt-2 mb-1 first:mt-0" {...props}>{children}</h1>,
-        h2: ({children, ...props}) => <h2 className="text-sm font-bold mt-2 mb-1 first:mt-0" {...props}>{children}</h2>,
-        h3: ({children, ...props}) => <h3 className="text-sm font-semibold mt-1.5 mb-0.5 first:mt-0" {...props}>{children}</h3>,
-        p: ({children, ...props}) => <p className="mb-1.5 last:mb-0" {...props}>{children}</p>,
-        ul: ({children, ...props}) => <ul className="list-disc ml-4 mb-1.5 space-y-0.5" {...props}>{children}</ul>,
-        ol: ({children, ...props}) => <ol className="list-decimal ml-4 mb-1.5 space-y-0.5" {...props}>{children}</ol>,
-        li: ({children, ...props}) => <li className="ml-0" {...props}>{children}</li>,
+        h1: ({children, ...props}) => <h1 className="text-base font-bold mt-3 mb-1.5 first:mt-0 text-slate-900" {...props}>{children}</h1>,
+        h2: ({children, ...props}) => <h2 className="text-sm font-bold mt-2.5 mb-1 first:mt-0 text-slate-900" {...props}>{children}</h2>,
+        h3: ({children, ...props}) => <h3 className="text-sm font-semibold mt-2 mb-1 first:mt-0 text-slate-800" {...props}>{children}</h3>,
+        p: ({children, ...props}) => <p className="mb-2 last:mb-0 leading-relaxed text-slate-900" {...props}>{children}</p>,
+        ul: ({children, ...props}) => <ul className="list-disc ml-5 mb-2 space-y-1 pl-1" {...props}>{children}</ul>,
+        ol: ({children, ...props}) => <ol className="list-decimal ml-5 mb-2 space-y-1 pl-1" {...props}>{children}</ol>,
+        li: ({children, ...props}) => <li className="ml-0 leading-relaxed" {...props}>{children}</li>,
         strong: ({children, ...props}) => <strong className="font-bold text-slate-900" {...props}>{children}</strong>,
-        em: ({children, ...props}) => <em className="italic" {...props}>{children}</em>,
+        em: ({children, ...props}) => <em className="italic text-slate-800" {...props}>{children}</em>,
+        del: ({children, ...props}) => <span className="font-bold text-slate-900" {...props}>{children}</span>,
         code: ({inline, children, ...props}) => {
           if (inline) {
-            return <code className="bg-slate-200 text-slate-800 px-1 py-0.5 rounded text-xs font-mono" {...props}>{children}</code>
+            return <code className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>{children}</code>
           }
-          return <code className="block bg-slate-200 text-slate-800 p-2 rounded my-1.5 text-xs overflow-x-auto font-mono" {...props}>{children}</code>
+          return <code className="block bg-slate-100 text-slate-900 p-2.5 rounded-md my-2 text-xs overflow-x-auto font-mono border border-slate-200" {...props}>{children}</code>
         },
-        pre: ({children, ...props}) => <pre className="bg-slate-200 p-2 rounded my-1.5 overflow-x-auto" {...props}>{children}</pre>,
-        hr: ({...props}) => <hr className="my-2 border-slate-300" {...props} />,
-        blockquote: ({children, ...props}) => <blockquote className="border-l-2 border-slate-400 pl-2 my-1.5 italic text-slate-700" {...props}>{children}</blockquote>,
-        a: ({children, ...props}) => <a className="text-blue-600 hover:underline" {...props}>{children}</a>,
+        pre: ({children, ...props}) => <pre className="bg-slate-100 rounded-md my-2 overflow-x-auto border border-slate-200" {...props}>{children}</pre>,
+        hr: ({...props}) => <hr className="my-3 border-slate-300" {...props} />,
+        blockquote: ({children, ...props}) => <blockquote className="border-l-3 border-red-400 pl-3 my-2 italic text-slate-700 bg-red-50 py-1 rounded-r" {...props}>{children}</blockquote>,
+        a: ({children, ...props}) => <a className="text-blue-600 hover:text-blue-800 underline font-medium" {...props}>{children}</a>,
       }}
     >
       {content}
