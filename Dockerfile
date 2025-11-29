@@ -1,7 +1,7 @@
 # -------------------------
 # FRONTEND DOCKERFILE
 # -------------------------
-FROM node:18 as build
+FROM node:20 as build
 
 WORKDIR /app
 
@@ -13,6 +13,7 @@ RUN npm run build
 
 # Production server
 FROM nginx:alpine
+COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
