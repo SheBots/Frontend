@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect, memo } from 'react'
+import { useState, useRef, useEffect, useContext, memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import ChatbotIcon from '../assets/chatbot-icon.jpg'
+import { LanguageContext } from '../App'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://3.27.241.187:8000'
 
@@ -36,14 +38,45 @@ const MarkdownContent = memo(({ content }) => {
     </ReactMarkdown>
   )
 })
-// Recommended topics configuration
-const TOPICS = [
-  { id: 1, label: '심화컴퓨팅전공에서 출업 위해 받아야한 교양학점은 뭐야?', icon: '💼' },
-  { id: 2, label: '글로벌소프트웨어융합전공 졸업요건 뭐야?', icon: '🎓' },
-  { id: 3, label: '플랫폼소프트웨어전공에서 출업 위해 받아야한 현장실습 학점는 뭐야?', icon: '📚' },
+// Localized suggested topics
+const TOPICS_KO = [
+  { id: 1, label: '심화컴퓨팅전공에서 졸업 위해 받아야 할 교양학점은 뭐야?' },
+  { id: 2, label: '글로벌소프트웨어융합전공 졸업요건 뭐야?' },
+  { id: 3, label: '플랫폼소프트웨어전공에서 졸업 위해 필요한 현장실습 학점은 뭐야?' },
 ]
 
+const TOPICS_EN = [
+  { id: 1, label: 'In the Advanced Computing major, what liberal arts credits are required for graduation?' },
+  { id: 2, label: 'What are the graduation requirements for the Global Software Convergence major?' },
+  { id: 3, label: 'For the Platform Software major, how many internship credits are required to graduate?' },
+]
+
+// Localized greeting texts
+const GREETING = {
+  bubble1: {
+    en: "Hello, I'm your AI assistant! 👋",
+    ko: '안녕하세요, 저는 AI 도우미입니다! 👋',
+  },
+  bubble2: {
+    en: 'How can I help you?',
+    ko: '무엇을 도와드릴까요?',
+  },
+  cardTitle: {
+    en: "Greetings! I'm your CS department AI Assistant",
+    ko: '안녕하세요! 저는 컴퓨터학부 AI 안내 챗봇입니다',
+  },
+  cardLine1: {
+    en: 'I can help you with information in both English and Korean.',
+    ko: '영어와 한국어로 정보를 제공해 드릴 수 있어요.',
+  },
+  cardLine2: {
+    en: 'You may choose a question from below or type your own!',
+    ko: '아래 질문을 선택하거나 직접 질문을 입력해 보세요!',
+  },
+}
+
 function ChatBot() {
+  const { lang } = useContext(LanguageContext)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -263,10 +296,10 @@ function ChatBot() {
           <div className="bg-white rounded-lg shadow-xl p-4 max-w-xs border border-gray-200 relative">
             {/* Greeting content */}
             {greetingStep === 1 && (
-              <p className="font-semibold text-gray-800">Hello, I'm your AI assistant! 👋</p>
+              <p className="font-semibold text-gray-800">{GREETING.bubble1[lang]}</p>
             )}
             {greetingStep === 2 && (
-              <p className="font-semibold text-gray-800">How can I help you?</p>
+              <p className="font-semibold text-gray-800">{GREETING.bubble2[lang]}</p>
             )}
             
             {/* Small arrow pointing to chat button */}
@@ -279,7 +312,7 @@ function ChatBot() {
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-50">
           <button
-            className="w-16 h-16 rounded-full bg-red-600 text-white shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-transform duration-300 hover:-translate-y-1 active:translate-y-0"
+            className="w-16 h-16 rounded-full bg-transparent shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-transform duration-300 hover:-translate-y-1 active:translate-y-0"
             onClick={() => {
               setIsOpen(true)
               setGreetingStep(0)
@@ -287,9 +320,7 @@ function ChatBot() {
             aria-label="Open chat"
             title="Open chat"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m2 8l-3-3H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-1z" />
-            </svg>
+            <img src={ChatbotIcon} alt="Open chat" className="w-14 h-14 rounded-full object-contain bg-white border border-white ring-1 ring-white p-0.5" />
           </button>
         </div>
       )}
@@ -330,18 +361,14 @@ function ChatBot() {
                     <div className="bg-white rounded-xl shadow-md p-2 border border-gray-100">
                       <div className="flex items-start gap-2 mb-1">
                         {/* Avatar */}
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-red-400 to-pink-400 flex items-center justify-center text-white text-lg flex-shrink-0">
-                          🤖
+                        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 border border-gray-200 bg-white">
+                          <img src={ChatbotIcon} alt="Assistant" className="w-8 h-8 object-contain rounded-full mx-auto my-0.5" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold text-slate-900 text-m mb-0.5">
-                            Greetings! I'm your CS department AI Assistant
-                          </h3>
+                          <h3 className="font-bold text-slate-900 text-m mb-0.5">{GREETING.cardTitle[lang]}</h3>
                           <div className="text-sm text-slate-600 space-y-0.5">
-                            <p>I can help you with information in both <span className="font-medium">English</span> and <span className="font-medium">Korean</span>.</p>
-                            <p className="text-slate-700 font-medium">
-                              You may choose a question from below or type your own!
-                            </p>
+                            <p>{GREETING.cardLine1[lang]}</p>
+                            <p className="text-slate-700 font-medium">{GREETING.cardLine2[lang]}</p>
                           </div>
                         </div>
                       </div>
@@ -350,7 +377,7 @@ function ChatBot() {
                     {/* Topic Recommendation Chips */}
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap gap-1.5">
-                        {TOPICS.map((topic) => (
+                        {(lang === 'ko' ? TOPICS_KO : TOPICS_EN).map((topic) => (
                           <button
                             key={topic.id}
                             onClick={() => handleTopicClick(topic)}

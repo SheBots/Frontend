@@ -11,9 +11,10 @@ interface TeamMember {
 
 interface TeamCardProps {
   member: TeamMember;
+  lang?: 'en' | 'ko';
 }
 
-export function TeamCard({ member }: TeamCardProps) {
+export function TeamCard({ member, lang = 'en' }: TeamCardProps) {
   return (
     <div className="bg-white rounded-xl p-6 border-2 border-gray-100 hover:border-[#C8102E]/30 hover:shadow-lg transition-all duration-300 group">
       <div className="flex flex-col items-center text-center space-y-4">
