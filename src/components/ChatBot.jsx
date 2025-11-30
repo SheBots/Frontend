@@ -87,6 +87,8 @@ function ChatBot() {
   const [greetingStep, setGreetingStep] = useState(0)
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [showGreeting, setShowGreeting] = useState(true)
+  // Track if initial RAG context was already provided by backend
+  const [contextProvided, setContextProvided] = useState(false)
 
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
@@ -178,7 +180,9 @@ function ChatBot() {
         body: JSON.stringify({
           message: userMessage.content,
           history: messages.filter(m => m.role !== 'assistant' || !m.isStreaming),
-          useDocs: useDocs
+          useDocs: useDocs,
+          language: lang,
+          context_provided: contextProvided
         }),
         signal: abortControllerRef.current.signal
       })
@@ -209,18 +213,22 @@ function ChatBot() {
               break
             }
 
-            try {
-              const parsed = JSON.parse(data)
-              if (parsed.token) {
-                setMessages(prev => prev.map(msg =>
-                  msg.id === assistantMessage.id
-                    ? { ...msg, content: msg.content + parsed.token }
-                    : msg
-                ))
+              try {
+                const parsed = JSON.parse(data)
+                // Update context state if backend indicates it provided context
+                if (parsed.context_provided !== undefined) {
+                  setContextProvided(parsed.context_provided)
+                }
+                if (parsed.token) {
+                  setMessages(prev => prev.map(msg =>
+                    msg.id === assistantMessage.id
+                      ? { ...msg, content: msg.content + parsed.token }
+                      : msg
+                  ))
+                }
+              } catch (e) {
+                // ignore invalid JSON
               }
-            } catch (e) {
-              // ignore invalid JSON
-            }
           }
         }
       }
@@ -286,6 +294,7 @@ function ChatBot() {
     setSelectedTopic(null)
     setShowGreeting(true)
     setInput('')
+    setContextProvided(false)
   }
 
   return (
@@ -339,11 +348,16 @@ function ChatBot() {
             <div className="flex items-center justify-center px-4 py-2 border-b bg-white/80 backdrop-blur-sm relative">
               <h2 id="chat-title" className="text-2xl font-bold text-red-600">SheBots</h2>
               <div className="absolute right-4 flex items-center gap-2">
-                <button onClick={resetChat} className="text-slate-600 hover:text-slate-800" title="Reset chat" aria-label="Reset chat">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
-                  </svg>
-                </button>
+                <div className="relative group">
+                  <button onClick={resetChat} className="text-slate-600 hover:text-slate-800" title="Reset chat" aria-label="Reset chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                      <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 bg-slate-800 text-white text-xs rounded py-1 px-2 z-10">
+                    {lang === 'ko' ? '새로운 주제로 질문하려면 초기화 버튼을 사용하세요' : 'Reset to ask about a different topic'}
+                  </div>
+                </div>
                 <button onClick={() => { setIsOpen(false); stopGeneration(); resetChat(); }} className="text-slate-600 hover:text-slate-800" title="Close chat" aria-label="Close chat">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -393,6 +407,13 @@ function ChatBot() {
                         ))}
                       </div>                      
                     </div>
+                  </div>
+                )}
+
+                {/* Beta tip after first message */}
+                {messages.length > 0 && !showGreeting && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-800">
+                    <strong>💡 {lang === 'ko' ? '팁:' : 'Tip:'}</strong> {lang === 'ko' ? '다른 주제로 질문하려면 상단의 초기화 버튼을 클릭하세요.' : 'Click the reset button (top-right) to start a new topic.'}
                   </div>
                 )}
 
