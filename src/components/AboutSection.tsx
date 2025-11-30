@@ -99,7 +99,7 @@ export function AboutSection() {
                 className="bg-[#C8102E] hover:bg-[#AA0E23] text-white rounded-lg shadow-sm"
                 onClick={() => setShowMore(!showMore)}
               >
-                {showMore ? (lang === 'ko' ? '접기' : 'Show Less') : (lang === 'ko' ? '더 알아보기' : 'Learn More')}
+                {showMore ? (lang === 'ko' ? '접기' : 'Show Less') : (lang === 'ko' ? '사용자 가이드' : 'User Guide')}
               </Button>
               <Button 
                 variant="outline" 
@@ -133,61 +133,54 @@ export function AboutSection() {
         {/* Additional Information - Separate Section */}
         {showMore && (
           <div ref={projectDetailsRef} className="mt-8 p-8 bg-gray-50 rounded-xl border border-gray-200">
-            <h3 className="text-2xl font-semibold text-[#C8102E] mb-6">{lang === 'ko' ? '프로젝트 상세 정보' : 'Project Details'}</h3>
             <div className="grid md:grid-cols-2 gap-8 text-gray-700">
+              {/* User Guidelines */}
               <div className="space-y-4">
-                <p className="text-base leading-relaxed">
+                <h4 className="text-xl font-semibold text-gray-900">{lang === 'ko' ? '사용자 안내' : 'User Guidelines'}</h4>
+                
+                <ul className="list-disc list-inside space-y-1 ml-4 text-base">
                   {lang === 'ko' ? (
                     <>
-                      <strong className="text-lg">미션:</strong> 경북대학교 컴퓨터학부 웹사이트에 AI 챗봇을 통합하여, 학생들이 학부 관련 정보를 쉽고 빠르게 얻을 수 있도록 돕고, 학부 사무실의 반복적인 문의를 줄이며 신입생·유학생의 학부 생활 적응을 지원하는 것을 목표로 합니다.
+                      <li><strong>챗봇 열기:</strong> 화면 오른쪽 아래의 챗봇 아이콘을 클릭합니다.</li>
+                      <li><strong>질문 선택 또는 직접 입력:</strong> 추천 질문을 선택하거나 한국어 또는 영어로 직접 질문을 입력할 수 있습니다.</li>
+                      <li><strong>즉시 답변 확인:</strong> 공지사항, 시간표, 문서, 졸업 요건 등 학부 정보를 빠르고 명확하게 안내합니다.</li>
+                      <li><strong>언어 전환 가능:</strong> 상단의 Kor/Eng 버튼을 눌러 언제든지 언어를 변경할 수 있습니다.</li>
+                      <li><strong>PC·모바일 모두 지원:</strong> 노트북, 태블릿, 휴대폰 어디서든 편리하게 이용 가능합니다.</li>
                     </>
                   ) : (
                     <>
-                      <strong className="text-lg">Mission:</strong> To develop an AI-powered chatbot integrated with the KNU Computer Science Department website, enabling students to easily access department-related information, reduce repetitive inquiries to the department office, and support freshmen and international students in adapting to academic life.
+                      <li><strong>Open the Chatbot:</strong> Click the chatbot icon at the bottom-right corner of the screen.</li>
+                      <li><strong>Choose or Type a Question:</strong> Select a suggested question, or type your own question in English or Korean.</li>
+                      <li><strong>Receive Instant Answers:</strong> SheBots provides clear and fast information about announcements, schedules, documents, graduation requirements, and more.</li>
+                      <li><strong>Switch Language Anytime:</strong> Use the Kor/Eng toggle to change the website language.</li>
+                      <li><strong>Mobile & PC Friendly:</strong> You can access the chatbot easily from laptops, tablets, or mobile devices.</li>
                     </>
                   )}
-                </p>
-                <p className="text-base leading-relaxed">
-                  {lang === 'ko' ? (
-                    <>
-                      <strong className="text-lg">대상 사용자:</strong> 컴퓨터학부 재학생, 입학 예정자 및 지원자, 외국인 유학생, 웹사이트 사용에 익숙하지 않은 신입생, 학부 정보를 빠르게 확인하려는 교수·직원.
-                    </>
-                  ) : (
-                    <>
-                      <strong className="text-lg">Target Users:</strong> Current CS students; Prospective students and applicants; International students; Freshmen unfamiliar with the department webpage; Faculty and department staff looking for quick reference information.
-                    </>
-                  )}
-                </p>
+                </ul>
               </div>
+
+              {/* Humble Request Section */}
               <div className="space-y-4">
-                <div>
-                  <p className="mb-3">
-                    <strong className="text-lg">{lang === 'ko' ? '주요 특징' : 'Features'}</strong>
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 ml-4 text-base">
-                    {lang === 'ko' ? (
-                      <>
-                        <li>컴퓨터학부 공지사항 실시간 조회</li>
-                        <li>FAQ 기반 자동 응답 시스템</li>
-                        <li>강의 정보·시간표 안내</li>
-                        <li>학부 서류 및 가이드 문서 검색 기능</li>
-                        <li>한국어/영어 다국어 지원</li>
-                        <li>모바일·PC 모두 이용 가능한 직관적 UI</li>
-                        <li>웹사이트 전체를 탐색할 필요 없이 즉각적인 정보 제공</li>
-                      </>
-                    ) : (
-                      <>
-                        <li>Real-time access to department announcements</li>
-                        <li>FAQ-based response system for common questions</li>
-                        <li>Course and timetable information retrieval</li>
-                        <li>Document search (forms, guidelines, academic docs)</li>
-                        <li>Multilingual support (Korean & English)</li>
-                        <li>Simple, intuitive, mobile-friendly UI</li>
-                        <li>Instant answers without navigating the full website</li>
-                      </>
-                    )}
-                  </ul>
-                </div>
+                <h4 className="text-xl font-semibold text-gray-900">{lang === 'ko' ? '사용자 여러분께 드리는 부탁' : 'Humble Request to Our Users'}</h4>
+                <ul className="list-disc list-inside space-y-1 ml-4 text-base leading-relaxed">
+                  {lang === 'ko' ? (
+                    <>
+                      <li>본 챗봇은 현재 <strong>베타 버전</strong>으로, 일부 정보가 완전히 구축되지 않았을 수 있습니다.</li>
+                      <li>정확한 CS 학부 정보를 제공하기 위해 노력하고 있으나, <strong>일부 답변이 완전하게 정확하지 않을 수 있습니다.</strong> 너그러운 양해 부탁드립니다.</li>
+                      <li>SheBots는 <strong>GPT-4.1 API</strong>를 사용하고 있으며, 테스트 환경에서 리소스가 제한되어 있습니다.</li>
+                      <li>모든 사용자가 안정적으로 이용할 수 있도록, <strong>적절한 이용량을 지켜주시면</strong> 감사하겠습니다.</li>
+                      <li className="italic">여러분의 피드백과 이해는 더 나은 챗봇을 만드는 데 큰 도움이 됩니다.</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>This chatbot is currently in its <strong>beta testing phase</strong>, and some information may still be incomplete.</li>
+                      <li>Although we try our best to provide correct CS department information, <strong>some answers may not always be fully accurate.</strong> We kindly ask for your understanding.</li>
+                      <li>The chatbot uses the <strong>GPT-4.1 API</strong>, and our testing environment has limited resources.</li>
+                      <li>To ensure stable operation for all users, please <strong>use the chatbot in an appropriate amount.</strong></li>
+                      <li className="italic">Your feedback and patience help us improve SheBots for future students.</li>
+                    </>
+                  )}
+                </ul>
               </div>
             </div>
           </div>
